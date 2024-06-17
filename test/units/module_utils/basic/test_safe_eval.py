@@ -60,9 +60,20 @@ def test_invalid_strings(am, code, expected):
                          ((c, e, ex, {}) for c, e, ex in INVALID_STRINGS),
                          indirect=['stdin'])
 def test_invalid_strings_with_exceptions(am, code, expected, exception):
+    branch_coverage = {1: False, 2: False}
     res = am.safe_eval(code, include_exceptions=True)
     assert res[0] == expected
+
+    # Branch 1
     if exception is None:
+        branch_coverage[1] = True
         assert res[1] == exception
+    
+    # Branch 2
     else:
+        branch_coverage[2] = True
         assert isinstance(res[1], exception)
+
+    print("Branch Coverage for test_invalid_strings_with_exceptions:")
+    for branch, taken in branch_coverage.items():
+        print(f"Branch {branch}: {'Taken' if taken else 'Not Taken'}")

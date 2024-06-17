@@ -210,20 +210,34 @@ def options_argspec_dict(options_argspec_list):
 @pytest.mark.parametrize('argspec, expected, stdin', [(s[0], s[2], s[1]) for s in VALID_SPECS],
                          indirect=['stdin'])
 def test_validator_basic_types(argspec, expected, stdin):
-
+    branch_coverage = {10: False, 11: False, 20: False, 21: False}
     am = basic.AnsibleModule(argspec)
 
+    # Branch 10
     if 'type' in argspec['arg']:
+        branch_coverage[10] = True
+
+        # Branch 20
         if argspec['arg']['type'] == 'int':
+            branch_coverage[20] = True
             type_ = int
+        
+        # Branch 21
         else:
+            branch_coverage[21] = True
             type_ = getattr(builtins, argspec['arg']['type'])
+    
+    # Branch 11
     else:
+        branch_coverage[11] = True
         type_ = str
 
     assert isinstance(am.params['arg'], type_)
     assert am.params['arg'] == expected
 
+    print("Branch Coverage for test_validator_basic_types:")
+    for branch, taken in branch_coverage.items():
+        print(f"Branch {branch}: {'Taken' if taken else 'Not Taken'}")
 
 @pytest.mark.parametrize('stdin', [{'arg': 42}, {'arg': 18765432109876543210}], indirect=['stdin'])
 def test_validator_function(mocker, stdin):
